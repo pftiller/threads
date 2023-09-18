@@ -5,21 +5,22 @@ const { ThreadsAPI } = require("threads-api");
 const profiles = [
   "mprnews",
   "apmreports",
-  // "apmresearchlab",
-  // "thecurrent",
-  // "marketplaceapm",
-  // "laistofficial",
-  // "splendidtable",
-  // "slowdownshow",
-  // "dontasktig",
-  // "carbonsoundfm",
+  "apmresearch",
+  "thecurrent",
+  "marketplaceapm",
+  "laistofficial",
+  "splendidtable",
+  "slowdownshow",
+  "dontasktig",
+  "carbonsoundfm",
 ];
 const credentials = {
   username: process.env.USERNAME,
   password: process.env.PASSWORD,
 };
 const deviceID = process.env.DEVICE_ID;
-const createRecord = async (item) => {
+
+const createRecord = (item) => {
   return {
     full_name: item.full_name,
     username: item.username,
@@ -36,19 +37,19 @@ const getData = async (username) => {
     ...credentials,
   });
   let userID = await threadsAPI.getUserIDfromUsername(username);
-  if (userID) {
+  if (!userID) {
+    console.log("User not found");
+  } else {
     let user = await threadsAPI.getUserProfile(userID);
-    return user;
+    let data = await createRecord(user);
+    return data;
   }
 };
-let dataArray = [];
-profiles.forEach(async (profile) => {
-  let data = await getData(profile);
-  let record = await createRecord(data);
-  dataArray.push(record);
-});
-
 (async function () {
-  let result = await dataArray;
-  console.log(result);
+  let dataArray = [];
+  for(let i=0; i<profiles.length; i++) {
+    let data = await getData(profiles[i]);
+    dataArray.push(data);
+  }
+  console.log(dataArray);
 })();
